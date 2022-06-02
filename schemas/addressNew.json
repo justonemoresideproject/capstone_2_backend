@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://our.address.com/addressNew.schema.json",
+    "type": "object",
+    "properties": {
+        "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "addressType": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "customerId": {
+            "type": "integer"
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "addressType",
+        "type",
+        "customerId"
+    ]
+}  

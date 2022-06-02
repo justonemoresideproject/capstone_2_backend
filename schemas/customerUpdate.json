@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://our.customer.com/customerNew.schema.json",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "lastName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "email": {
+            "format": "email",
+            "type": "string"
+        },
+        "phone": {
+            "Type": "string",
+            "minLength": 10,
+            "maxLength": 20,
+            "Pattern": "^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$"
+        }
+    },
+    "additionalProperties": false
+}  

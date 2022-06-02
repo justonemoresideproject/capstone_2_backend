@@ -1,0 +1,51 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://our.product.com/productNew.schema.json",
+    "type": "object",
+    "properties": {
+        "customerInfo": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 30
+                },
+                "lastName": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 30
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                }, 
+                "phone": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 20,
+                    "Pattern": "^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$"
+                },
+                "address": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "addressType": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50
+                }
+
+        }
+    },
+    "products": {
+        "type": "object"
+    }
+    }, 
+    "additionalProperties": false,
+    "required": [
+        "customerInfo",
+        "products"
+    ]
+}

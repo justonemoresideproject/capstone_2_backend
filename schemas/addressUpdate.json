@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://our.address.com/addressUpdate.schema.json",
+    "type": "object",
+    "properties": {
+        "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "customerId": {
+            "type": "integer"
+        }
+    },
+    "additionalProperties": false
+}  
