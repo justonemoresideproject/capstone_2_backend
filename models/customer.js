@@ -34,7 +34,7 @@ class Customer {
                 email,
                 phone
             )
-            VALUES ($1, $2, $3, $4, $5)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING
                 id,
                 user_id,
@@ -76,34 +76,46 @@ class Customer {
      *  Queries currently unsupported
      */
 
+    static async all() {
+        const res = await db.query('SELECT * FROM customers')
+
+        return res.rows
+    }
+
     static async get(searchFilters = {}) {
+        console.log('customer model get function')
         let query = `SELECT * FROM customers`
         let whereExpressions = []
         let queryValues = []
 
         const { userId, id, firstName, lastName } = searchFilters;
 
-        if(userId) {
+        console.log(`UserId: ${userId}`)
+        console.log(`Id:${id}`)
+        console.log(`First Name: ${firstName}`)
+        console.log(`Last Name: ${lastName}`)
+
+        if(userId != undefined) {
             queryValues.push(userId)
             whereExpressions.push(`user_id = $${queryValues.length}`)
         }
 
-        if(id) {
+        if(id != undefined) {
             queryValues.push(id)
             whereExpressions.push(`id = $${queryValues.length}`)
         }
 
-        if(firstName) {
+        if(firstName != undefined) {
             queryValues.push(`%${firstName}%`)
             whereExpressions.push(`first_name ILIKE $${queryValues.length}`)
         }
 
-        if(lastName) {
+        if(lastName != undefined) {
             queryValues.push(`%${lastName}%`)
             whereExpressions.push(`last_name ILIKE $${queryValues.length}`)
         }
 
-        if(email) {
+        if(email != undefined) {
             queryValues.push(`%${email}%`)
             whereExpressions.push(`email ILIKE $${queryValues.length}`)
         }

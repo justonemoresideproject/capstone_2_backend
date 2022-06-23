@@ -13,7 +13,7 @@ class User {
         firstName, 
         lastName, 
         email, 
-        phone, 
+        phone = null, 
         isAdmin = false, 
         password}) { 
         const duplicateCheck = await db.query(
@@ -40,16 +40,15 @@ class User {
             last_name,
             email,
             phone,
-            customer_id,
             is_admin)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING 
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING
+            id, 
             username, 
             first_name AS "firstName", 
             last_name AS "lastName", 
             email,
             phone,
-            customer_id AS "customerId",
             is_admin AS "isAdmin"`,
             [
                 username,
@@ -58,7 +57,6 @@ class User {
                 lastName,
                 email,
                 phone,
-                customer.id,
                 isAdmin
             ],
         );
@@ -71,18 +69,18 @@ class User {
     static async authenticate(username, password){
         const result = await db.query(`
         SELECT 
+            id,
             username, 
             password, 
             first_name AS "firstName", 
             last_name AS "lastName",
             email,
             phone,
-            customer_id AS "customerId",
             is_admin AS "isAdmin"
         FROM
             users
         WHERE
-            username=$1`, [username])
+            username = $1`, [username])
             
         const user = result.rows[0]
 
@@ -96,10 +94,10 @@ class User {
         throw new UnauthorizedError('Invalid username/password')
     }
 
-    static async getById(userId) {
+    static async getById(id) {
         const result = await db.query(`
             SELECT * FROM user
-            WHERE user_id = $1`, [userId])
+            WHERE id = $1`, [id])
 
         const user = result.rows[0]
 
@@ -144,7 +142,7 @@ class User {
                             SET ${setCols} 
                             WHERE id = ${userIdVarIdx} 
                             RETURNING 
-                            username,
+                                username,
                                 first_name AS "firstName",
                                 last_name AS "lastName",
                                 email,
@@ -187,73 +185,6 @@ class User {
 
         return user
     }
-
-    // static async createCustomer(firstName, lastName, email, phone){
-    //     const timeStamp = new Date()
-    //     const res = await db.query(
-    //         `INSERT INTO customers 
-    //         (
-    //             first_name,
-    //             last_name,
-    //             created_at,
-    //             email,
-    //             phone
-    //         )
-    //         VALUES ($1, $2, $3, $4, $5)
-    //         RETURNING 
-    //         id,
-    //         first_name AS firstName,
-    //         last_name AS lastName,
-    //         created_at AS createdAt,
-    //         email,
-    //         phone`, 
-    //         [
-    //             firstName,
-    //             lastName,
-    //             timeStamp,
-    //             email,
-    //             phone
-    //         ]
-    //     )
-
-    //     const customer = res.rows[0]
-
-    //     return customer
-    // }
-
-    // static async updateCustomer(id, data){
-    //     const customerCheck = await db.query(`SELECT * FROM customers WHERE id = $1`, [id])
-
-    //     if(!customerCheck){
-    //         throw new NotFoundError(`Unknown customer id: ${id}`)
-    //     }
-
-    //     const { setCols, values } = sqlForPartialUpdate(
-    //         data,
-    //         {
-    //             firstName: "first_name",
-    //             lastName: "last_name",
-    //             isAdmin: "is_admin",
-    //             customerId: "customer_id"
-    //         });
-
-    //     const usernameVarIdx = "$" + (values.length + 1);
-
-    //     const querySql = `
-    //         UPDATE users 
-    //         SET ${setCols} 
-    //         WHERE username = ${usernameVarIdx} 
-    //         RETURNING 
-    //             username,
-    //             first_name AS "firstName",
-    //             last_name AS "lastName",
-    //             email,
-    //             is_admin AS "isAdmin"`;
-    //     const result = await db.query(querySql, [...values, username]);
-    //     const user = result.rows[0];
-
-    //     return user
-    // }
 }
 
 module.exports = User

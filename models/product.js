@@ -7,9 +7,65 @@ const { sqlForPartialUpdate } = require('../helpers/sql')
 class Product {
     static async all(){
         const results = await db.query(`
-        SELECT * FROM products`)
+        SELECT id, name, published, description, variant_sku AS "variantSku", price, image_source AS "imageSrc" FROM products`)
 
-        const products = results.rows[0]
+        const products = {}
+
+        results.rows.forEach(product => {
+            products[product.id] = {...product}
+        })
+
+        return products
+    }
+
+    static async find(searchFilters = {}) {
+        let query = `SELECT * FROM products`
+        let whereExpressions = []
+        let queryValues = []
+
+        const { id, name, description, variantSku, price, imageSrc } = searchFilters
+
+        if(id) {
+            queryValues.push(id)
+            whereExpressions.push(`id = $${queryValues.length}`)
+        }
+
+        if(name) {
+            queryValues.push(name)
+            whereExpressions.push(`name ILIKE %$${queryValues.length}%`)
+        }
+
+        if(description) {
+            queryValues.push(description)
+            whereExpressions.push(`description ILIKE %${queryValues.length}%`)
+        }
+
+        if(variantSku) {
+            queryValues.push(variantSku)
+            whereExpressions.push(`variant_sku = $${queryValues.length}`)
+        }
+
+        if(price) {
+            queryValues.push(price)
+            whereExpressions.push(`price = $${queryValues.length}`)
+        }
+
+        if(imageSrc) {
+            queryValues.push(imageSrc) 
+            whereExpressions.push(`image_source = $${queryValues.length}`)
+        }
+
+        if (whereExpressions.length > 0) {
+            query += " WHERE " + whereExpressions.join(" AND ");
+        }
+
+        const res = await db.query(query, queryValues)
+
+        if(!res.rows[0]) {
+            throw new NotFoundError(`No results found`)
+        }
+
+        const products = res.rows[0]
 
         return products
     }
@@ -17,7 +73,7 @@ class Product {
     static async allNames(){
         const results = await db.query(`SELECT name FROM products`)
 
-        const productNames = results.rows[0]
+        const productNames = results.rows
 
         return productNames
     }
@@ -25,17 +81,49 @@ class Product {
     static async allDescriptions(){
         const results = await db.query(`SELECT description FROM products`)
 
-        const productDescriptions = results.rows[0]
+        const productDescriptions = results.rows
 
         return productDescriptions
     }
 
-    static async allPrices(){
-        const results = await db.query(`SELECT price FROM products`)
+    static async queryProducts(searchFilters = {}){
+        console.log('query')
+        console.log(searchFilters)
+        const { select, target, lessThan, descOrder } = searchFilters
 
-        const productPrice = results.rows[0]
+        let query = 'SELECT ';
 
-        return productPrice
+        if(select) {
+            select.forEach((ele, index) => {
+                index == select.length - 1 ? query+=`${ele} FROM products` : query+=`${ele}, `
+            })
+        } else {
+            query+=` * FROM products`
+        }
+
+        if(target != null) {
+            if(lessThan) {
+                query+=` WHERE price >= ${target} `
+            } else {
+                query+= ` WHERE price <= ${target} `
+            }
+
+            console.log('if statements')
+
+            if(descOrder) {
+                query+= `ORDER BY price DESC`
+            } else {
+                query+= `ORDER BY price ASC`
+            }
+        }
+
+        console.log(query)
+
+        const results = await db.query(query)
+
+        const ids = results.rows
+
+        return ids
     }
 
     static async add({

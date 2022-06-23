@@ -18,13 +18,9 @@ const router = new express.Router({ mergeParams: true });
 * Authorization: Admin
 */
 
-router.get("/", ensureAdmin, async function(req, res, next) {
-    const q = req.query;
-
-    if(q.userId !== undefined) q.userId = +q.userId;
-    
+router.get("/", ensureAdmin, async function(req, res, next) { 
     try {
-        const customers = await Customer.get(q)
+        const customers = await Customer.all()
 
         return res.json({ customers })
     } catch (err) {
@@ -84,7 +80,7 @@ router.get('/:id', ensureAdmin, async function(req, res, next) {
     try {
         const id = req.params.id
 
-        const customer = await Customer.get(id)
+        const customer = await Customer.get({id})
 
         return res.json({ customer })
     } catch (err) {

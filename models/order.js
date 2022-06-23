@@ -66,15 +66,15 @@ class Order {
             customer_id, 
             address_id, 
             created_at, 
-            status
+            delivered_status
         ) 
         VALUES ($1, $2, $3, $4) 
         RETURNING 
             id,
-            customer_id AS customerId, 
-            address_id AS addressId, 
-            created_at AS createdAt,
-            status`, 
+            customer_id AS "customerId", 
+            address_id AS "addressId", 
+            created_at AS "createdAt",
+            delivered_status AS "status"`, 
         [
             customerId,
             addressId,
@@ -106,9 +106,7 @@ class Order {
     */
 
     static async createCustomerAndOrder(customerInfo, products) {
-        console.log("Customer and Order function")
         const { firstName, lastName, email, phone, address, addressType } = customerInfo
-
 
         const newCustomer = await Customer.register({firstName, lastName, email, phone});
         console.log("After new customer")
@@ -132,10 +130,10 @@ class Order {
             VALUES ($1, $2, $3, $4) 
             RETURNING 
                 id,
-                customer_id AS customerId, 
-                address_id AS addressId, 
-                created_at AS createdAt,
-                delivered_status AS status`, 
+                customer_id AS "customerId", 
+                address_id AS "addressId", 
+                created_at AS "createdAt",
+                delivered_status AS "status"`, 
             [
                 customerId,
                 addressId,
@@ -198,7 +196,7 @@ class Order {
             throw new NotFoundError(`No order found`)
         }
 
-        const orders = res.rows[0]
+        const orders = res.rows
 
         return orders
     }

@@ -38,9 +38,11 @@ router.get('/', ensureCorrectUserOrAdmin, async function(req, res, next) {
  * req.body = { addressId, customerId, products }
  * or
  * req.body = { customerInfo, products }
+ * 
+ * 
  */
 
-router.post("/", ensureLoggedIn, async function(req, res, next) {
+router.post("/", async function(req, res, next) {
     try {
         const validatorOne = jsonschema.validate(req.body, orderNewSchema)
 
@@ -51,8 +53,7 @@ router.post("/", ensureLoggedIn, async function(req, res, next) {
                 const errs = validatorOne.errors.map(e => e.stack);
                 throw new BadRequestError(errs);
             }
-            console.log("Order Route validator two")
-            const errs = validatorTwo.errors.map(e => e.stack);
+            const errs = validatorTwo.errors.map(e => e.stack)
             throw new BadRequestError(errs);
         }
 

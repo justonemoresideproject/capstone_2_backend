@@ -1,0 +1,28 @@
+Token Login
+
+{ "username": "admin", "password": "secretly" }
+
+Registration
+
+{ "username" : "admin", "password" : "secretly", "firstName" : "Phil", "lastName" : "Burt", "email" : "admin@gmail.com", "phone" : 1112223333 }
+
+{ "username" : "anothertestly", "password" : "anotheryomama", "firstName" : "Phatly", "lastName" : "blehly", "email" : "testing@gmail.com", "phone" : "3334445555" }
+
+Prices query
+
+{ "target" : 8.75, "lessThan" : false, "descOrder" : false }
+
+{ "select" : ["id", "price", "name"], : "target" : 8.75, "lessThan" : false, "descOrder" : false }
+
+New Order 
+
+{ "customerInfo" : { 
+    "firstName": "Philber", 
+    "lastName": "bah", 
+    "email": "test@gmail.com", 
+    "address": "123 fake street", 
+    "addressType": "home" 
+    }, 
+    "products" : { "1": "2", "2": "1" } }
+
+{ "customerId": 1, "addressId": 1, "products": { "2": "1", "1": "2" } }

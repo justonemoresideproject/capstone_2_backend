@@ -6,6 +6,7 @@ const { ensureAdmin } = require("../middleware/auth");
 const Product = require("../models/product");
 const productNewSchema = require("../schemas/productNew.json");
 const productUpdateSchema = require("../schemas/productUpdate.json");
+const productPriceQuerySchema = require("../schemas/productPriceQuery.json")
 
 const router = new express.Router({ mergeParams: true });
 
@@ -41,6 +42,25 @@ router.get("/:id", async function (req, res, next) {
     try {
         const product = await Product.get(req.params.id);
         return res.json({ product })
+    } catch (e) {
+        return next(e)
+    }
+})
+
+router.post("/query", async function (req, res, next) {
+    try {
+        const searchFilters = req.body
+
+        const validator = jsonschema.validate(req.body, productPriceQuerySchema);
+
+        if (!validator.valid) {
+            const errs = validator.errors.map(e => e.stack);
+            throw new BadRequestError(errs);
+        }
+        
+        const products = await Product.queryProducts(searchFilters)
+
+        return res.status(201).json({ products })
     } catch (e) {
         return next(e)
     }

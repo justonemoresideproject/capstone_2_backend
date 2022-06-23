@@ -32,8 +32,7 @@
       "phone": {
         "type": ["string", "null"],
         "minLength": 10,
-        "maxLength": 20,
-        "pattern": "^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$"
+        "maxLength": 20
       }
     },
     "additionalProperties": false,
