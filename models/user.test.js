@@ -36,7 +36,7 @@ describe("register", function () {
 
         expect(user).toEqual({
             ...newUser, 
-            customerId: expect.any(Number)
+            id: expect.any(Number)
         });
         const found = await db.query("SELECT * FROM users WHERE username = 'test'");
         expect(found.rows[0].is_admin).toEqual(false);
@@ -52,7 +52,6 @@ describe("authenticate", function() {
         expect(user.rows[0].password.startsWith("$2b$")).toEqual(true);
 
         expect(user.rows[0]).toEqual({
-            customerId: 1,
             username: "test",
             firstName: "jim",
             lastName: "bo",

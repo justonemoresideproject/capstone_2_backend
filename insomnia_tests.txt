@@ -26,3 +26,7 @@ New Order
     "products" : { "1": "2", "2": "1" } }
 
 { "customerId": 1, "addressId": 1, "products": { "2": "1", "1": "2" } }
+
+Payment Intent
+
+{ "amount": 1999, "currency": "usd", "payment_method_types": "card" }

@@ -7,7 +7,14 @@ const { sqlForPartialUpdate } = require('../helpers/sql')
 class Product {
     static async all(){
         const results = await db.query(`
-        SELECT id, name, published, description, variant_sku AS "variantSku", price, image_source AS "imageSrc" FROM products`)
+        SELECT 
+            id, 
+            name, 
+            published, 
+            description, 
+            price, 
+            variant_sku AS "variantSku", 
+            image_source AS "imageSrc" FROM products`)
 
         const products = {}
 
@@ -131,6 +138,7 @@ class Product {
         published = true,
         description,
         price,
+        variantSku,
         imageSrc
     }) {
         const result = await db.query(`
@@ -140,16 +148,18 @@ class Product {
             published,
             description,
             price,
+            variant_sku,
             image_source
         )
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING
             id,
             name,
             published,
             description,
             price,
-            image_source
+            variant_sku AS "variantSku",
+            image_source AS "imageSrc"
         `,
         [
             name,
@@ -188,7 +198,8 @@ class Product {
                 published,
                 description,
                 price,
-                image_source
+                variant_sku AS "variantSku",
+                image_source AS "imageSrc"
         `;
         const result = await db.query(querySql, [...values, id]);
 
@@ -198,7 +209,16 @@ class Product {
     }
 
     static async get(id){
-        const result = await db.query(`SELECT * FROM products WHERE id = $1`, [id])
+        const result = await db.query(`SELECT * FROM products 
+        WHERE id = $1
+        RETURNING
+            id,
+            name,
+            published,
+            description,
+            price,
+            variant_sku AS "variantSku",
+            image_source AS "imageSrc"`, [id])
 
         if(!result){
             throw new NotFoundError('Unknown Product Id ')
@@ -208,39 +228,6 @@ class Product {
 
         return product
     }
-
-
-    // Can be erased since the image update is already handled in the product update
-
-    // static async updateProductImage(id, imageSrc){
-    //     const imageCheck = await db.query(`SELECT * FROM products WHERE id = $1`, [id])
-
-    //     if(!imageCheck){
-    //         throw new NotFoundError('Product not found')
-    //     }
-
-    //     const { setCols, values } = sqlForPartialUpdate(
-    //         data,
-    //         {});
-
-    //     const idVarIdx = "$" + (values.length + 1);
-
-    //     const querySql = 
-    //     `
-    //         UPDATE product_images 
-    //         SET ${setCols} 
-    //         WHERE id = ${idVarIdx} 
-    //         RETURNING 
-    //             id, 
-    //             url,
-    //             product_id AS "productId"
-    //     `;
-    //     const result = await db.query(querySql, [...values, id]);
-
-    //     const image = result.rows[0]
-
-    //     return image
-    // }
 
     static async remove(id){
         const result = await db.query(

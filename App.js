@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-const stripe = require('stripe')('pk_test_51L5DwtBCvqDloHDcEnna8jU3M8FASA04xrBUg4xjybsaPhPMADdz4CW9GPcZ95BculaIMBOsG3hfSiCeHmGLanDI00LJVhWlX9')
+const stripe = require('stripe')('sk_test_51L5DwtBCvqDloHDcJwSLivA8OxmcsjaPXdWTLdupQMSjDaqsyV3f9qzYfF7jSRdGHRBKt9o1RHN1GTU5qQiLECkr00lFA4lSZZ');
 
 const { NotFoundError } = require("./expressError");
 
@@ -52,6 +52,10 @@ app.post('/create-checkout-session', async (req, res) => {
 app.get('/config', async (req, res) => {
   res.json({publishableKey: process.env.STRIPE_PUBLISHABLE_KEY})
 })
+
+// app.post('/purchase', async (req, res) => {
+  
+// })
 
 app.post(
   '/webhook', 

@@ -139,7 +139,15 @@ class Customer {
     static async get(id){
         const res = await db.query(`
             SELECT * FROM customers 
-            WHERE id = $1`, [id])
+            WHERE id = $1
+            RETURNING
+                id,
+                created_at AS "createdAt",
+                email,
+                first_name AS "firstName",
+                last_name AS "lastName",
+                phone,
+                user_id AS "userId"`, [id])
 
         if(!res.rows[0]){
             throw new NotFoundError(`Unknown customer id: ${id}`)

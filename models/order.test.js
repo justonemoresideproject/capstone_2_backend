@@ -55,7 +55,7 @@ describe("Order Class Tests", function () {
             }
         }
 
-        const order = await Order.receiveOrder(newOrder)
+        const order = Order.receiveOrder(newOrder)
 
         expect(order).toEqual(expectedOrder)
     })
@@ -81,9 +81,9 @@ describe("Order Class Tests", function () {
             }
         }
 
-        const order = await Order.receiveOrder(1, newOrder)
+        const order = Order.receiveOrder(1, newOrder)
 
-        const updatedOrder = await Order.update(order.id, { "customerId": 1, "addressId": 1 })
+        const updatedOrder = Order.update(order.id, { "customerId": 1, "addressId": 1 })
 
         expect(updatedOrder).toEqual(expectedOrder)
     })
@@ -106,7 +106,7 @@ describe("Order Class Tests", function () {
 
         const order = Order.receiveOrder(newOrder)
 
-        const item = await Order.addItem(order.id, 1, 1)
+        const item = Order.addItem(order.id, 1, 1)
 
         expect(item).toEqual(expectedItem)
     })

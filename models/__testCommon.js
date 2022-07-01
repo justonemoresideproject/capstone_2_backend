@@ -18,8 +18,8 @@ async function commonBeforeAll() {
     const userIds = [];
     
     const products = await db.query(`
-        INSERT INTO products (name, description, price, currency)
-        VALUES ('Furby', 'furry and stuff', 5.00, 'USD')`);
+        INSERT INTO products (name, description, variant_sku, price, image_source)
+        VALUES ('Furby', 'furry and stuff', '30703423', 5.00, 'test.jpg')`);
     productIds.splice(0, 0, products.rows.map(r => r.id))
     
 
@@ -29,7 +29,7 @@ async function commonBeforeAll() {
     customerIds.splice(0, 0, customers.rows.map(r => r.id))
 
     const shipping_addresses = await db.query(`
-        INSERT INTO shipping_addresses (shipping_address, type_of_address, customer_id)
+        INSERT INTO shipping_addresses (shipping_address, address_type, customer_id)
         VALUES ('123 fake street', 'home', 1)`);
     shippingAddressIds.splice(0, 0, shipping_addresses.rows.map(r => r.id))
 
@@ -39,8 +39,8 @@ async function commonBeforeAll() {
     orderIds.splice(0, 0, orders.rows.map(r => r.id))
 
     const users = await db.query(`
-        INSERT INTO users (username, password, first_name, last_name, email, phone, customer_id, is_admin)
-        VALUES ('tester', '$2b$', 'phil', 'phillington', 'test@testmail.com', 1112223344, 1, false)`
+        INSERT INTO users (username, password, first_name, last_name, email, phone, is_admin)
+        VALUES ('tester', '$2b$', 'phil', 'phillington', 'test@testmail.com', 1112223344, false)`
     );
     userIds.splice(0, 0, users.rows.map(r => r.id))
 }

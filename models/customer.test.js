@@ -32,7 +32,7 @@ describe("Customer Class Tests", function () {
         expect(customerInfo).toEqual({
             ...newCustomer,
             id: expect.any(Number),
-            createdAt: expect.anything;;;;'++iiiiiiiiiiiiiik()
+            createdAt: expect.anything
         })
     })
 
