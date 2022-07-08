@@ -37,12 +37,13 @@ class Customer {
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING
                 id,
-                user_id,
+                user_id AS "userId",
                 first_name AS "firstName",
                 last_name AS "lastName",
                 created_at AS "createdAt",
                 email,
-                phone`, [
+                phone`, 
+                [
                     userId,
                     firstName, 
                     lastName, 
@@ -89,11 +90,6 @@ class Customer {
         let queryValues = []
 
         const { userId, id, firstName, lastName } = searchFilters;
-
-        console.log(`UserId: ${userId}`)
-        console.log(`Id:${id}`)
-        console.log(`First Name: ${firstName}`)
-        console.log(`Last Name: ${lastName}`)
 
         if(userId != undefined) {
             queryValues.push(userId)

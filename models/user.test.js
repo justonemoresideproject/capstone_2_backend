@@ -29,7 +29,7 @@ describe("register", function () {
     }
 
     test("works", async function () {
-        let user = await User.register({
+        const user = await User.register({
             ...newUser,
             password: 'password'
         })
@@ -38,7 +38,8 @@ describe("register", function () {
             ...newUser, 
             id: expect.any(Number)
         });
-        const found = await db.query("SELECT * FROM users WHERE username = 'test'");
+
+        const found = await db.query(`SELECT * FROM users WHERE username = $1`, ['secondTest']);
         expect(found.rows[0].is_admin).toEqual(false);
         expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
     })
@@ -46,10 +47,10 @@ describe("register", function () {
 
 describe("authenticate", function() {
     test("works", async function() {
-        const user = await User.authenticate("tester", "password")
+        const user = await User.authenticate("secondTest", "password")
 
-        expect(user.rows[0].is_admin).toEqual(false);
-        expect(user.rows[0].password.startsWith("$2b$")).toEqual(true);
+        // expect(user.rows[0].is_admin).toEqual(false);
+        // expect(user.rows[0].password.startsWith("$2b$")).toEqual(true);
 
         expect(user.rows[0]).toEqual({
             username: "test",

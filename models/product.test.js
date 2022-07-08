@@ -24,7 +24,8 @@ describe("Product Class Tests", function () {
         description: 'testDescription',
         price: 5.00,
         imageSrc: 'test.jpg',
-        published: true
+        published: true,
+        variantSku: '123test'
     }
 
     test("can add product", async function() {

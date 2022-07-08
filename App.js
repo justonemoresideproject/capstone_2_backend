@@ -15,6 +15,7 @@ const ordersRoutes = require("./routes/orders");
 const productsRoutes = require("./routes/products");
 const addressRoutes = require("./routes/address");
 const usersRoutes = require("./routes/users");
+const paymentRoutes = require("./routes/payment");
 
 const morgan = require("morgan");
 
@@ -32,74 +33,7 @@ app.use("/users", usersRoutes);
 app.use("/addresses", addressRoutes);
 app.use("/products", productsRoutes);
 app.use("/orders", ordersRoutes);
-
-app.post('/create-checkout-session', async (req, res) => {
-  const { paymentMethodType, currency, amount } = req.body;
-
-  try{
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
-      currency: currency,
-      payment_method_types: [paymentMethodType]
-    });
-  
-    res.json({ clientSecret: paymentIntent.client_secret })
-  } catch(err) {
-    res.status(400).json({ error: { message: err.message }})
-  }
-});
-
-app.get('/config', async (req, res) => {
-  res.json({publishableKey: process.env.STRIPE_PUBLISHABLE_KEY})
-})
-
-// app.post('/purchase', async (req, res) => {
-  
-// })
-
-app.post(
-  '/webhook', 
-  bodyParser.raw({ type: "application/json" }),
-  (req, res) => {
-    const sig = req.headers["stripe-signature"];
-
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    } catch (err) {
-      console.log(`X Error Message: ${err.message}`);
-      return res.status(400).send(`Webhook Error: ${err.message}`)
-    }
-
-    if(event.type === 'payment_intent.created') {
-      const paymentIntent = event.dta.object;
-      console.log(`[${event.id}] PaymentIntent (${paymentIntent.id}): ${paymentIntent.status}`)
-    }
-    if(event.type === 'payment_intent.canceled') {
-      const paymentIntent = event.dta.object;
-      console.log(`[${event.id}] PaymentIntent (${paymentIntent.id}): ${paymentIntent.status}`)
-    }
-    if(event.type === 'payment_intent.failed') {
-      const paymentIntent = event.dta.object;
-      console.log(`[${event.id}] PaymentIntent (${paymentIntent.id}): ${paymentIntent.status}`)
-    }
-    if(event.type === 'payment_intent.processing') {
-      const paymentIntent = event.dta.object;
-      console.log(`[${event.id}] PaymentIntent (${paymentIntent.id}): ${paymentIntent.status}`)
-    }
-    if(event.type === 'payment_intent.requires_action') {
-      const paymentIntent = event.dta.object;
-      console.log(`[${event.id}] PaymentIntent (${paymentIntent.id}): ${paymentIntent.status}`)
-    }
-    if(event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.dta.object;
-      console.log(`[${event.id}] PaymentIntent (${paymentIntent.id}): ${paymentIntent.status}`)
-    }
-
-    res.json({ received: true });
-  }
-)
+app.use("/payment", paymentRoutes)
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req, res, next) {

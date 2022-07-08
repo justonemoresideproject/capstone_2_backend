@@ -29,10 +29,11 @@ describe("Customer Class Tests", function () {
     test("Can create customer", async function() {
         const newCustomer = await Customer.register(customerInfo)
 
-        expect(customerInfo).toEqual({
-            ...newCustomer,
+        expect(newCustomer).toEqual({
+            ...customerInfo,
             id: expect.any(Number),
-            createdAt: expect.anything
+            createdAt: expect.anything,
+            userId: expect.null
         })
     })
 

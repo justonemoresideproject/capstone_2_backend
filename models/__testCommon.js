@@ -18,8 +18,8 @@ async function commonBeforeAll() {
     const userIds = [];
     
     const products = await db.query(`
-        INSERT INTO products (name, description, variant_sku, price, image_source)
-        VALUES ('Furby', 'furry and stuff', '30703423', 5.00, 'test.jpg')`);
+        INSERT INTO products (name, description, variant_sku, price, image_source, published)
+        VALUES ('Furby', 'furry and stuff', '30703423', 5.00, 'test.jpg', true)`);
     productIds.splice(0, 0, products.rows.map(r => r.id))
     
 
