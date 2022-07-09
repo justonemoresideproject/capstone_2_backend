@@ -1,5 +1,5 @@
 const jsonschema = require("jsonschema");
-
+const bodyParser = require("body-parser");
 const express = require("express");
 const { BadRequestError } = require("../expressError");
 const { ensureAdmin, ensureCorrectUserOrAdmin, ensureLogin } = require("../middleware/auth");
@@ -7,6 +7,7 @@ const { ensureAdmin, ensureCorrectUserOrAdmin, ensureLogin } = require("../middl
 // const addressUpdateSchema = require("../schemas/addressUpdate.json");
 
 const router = new express.Router({ mergeParams: true });
+// router.use(bodyParser.urlencoded({ extended: false }));
 
 router.post('/create-checkout-session', async (req, res) => {
     const { paymentMethodType, currency, amount } = req.body;
@@ -24,15 +25,11 @@ router.post('/create-checkout-session', async (req, res) => {
     }
 });
 
-router.post()
-
 router.get('/config', async (req, res) => {
     res.json({publishableKey: process.env.STRIPE_PUBLISHABLE_KEY})
 })
 
-router.post(
-    '/webhook', 
-    bodyParser.raw({ type: "application/json" }),
+router.post('/webhook', bodyParser.raw({ type: "application/json" }),
     (req, res) => {
       const sig = req.headers["stripe-signature"];
   
