@@ -6,10 +6,12 @@ const { ensureAdmin, ensureCorrectUserOrAdmin, ensureLogin } = require("../middl
 // const addressNewSchema = require("../schemas/addressNew.json");
 // const addressUpdateSchema = require("../schemas/addressUpdate.json");
 
+const stripe = require('stripe')('sk_test_51L5DwtBCvqDloHDcJwSLivA8OxmcsjaPXdWTLdupQMSjDaqsyV3f9qzYfF7jSRdGHRBKt9o1RHN1GTU5qQiLECkr00lFA4lSZZ');
+
 const router = new express.Router({ mergeParams: true });
 // router.use(bodyParser.urlencoded({ extended: false }));
 
-router.post('/create-checkout-session', async (req, res) => {
+router.post('/create-payment-intent', async (req, res) => {
     const { paymentMethodType, currency, amount } = req.body;
   
     try{
