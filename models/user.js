@@ -94,9 +94,25 @@ class User {
         throw new UnauthorizedError('Invalid username/password')
     }
 
+    static async all() {
+        const result = await db.query(`
+            SELECT 
+                id,
+                username,
+                first_name AS firstName,
+                last_name AS lastName,
+                email,
+                phone,
+                is_admin AS isAdmin
+            FROM 
+                users`)
+
+        return result.rows
+    }
+
     static async getById(id) {
         const result = await db.query(`
-            SELECT * FROM user
+            SELECT * FROM users
             WHERE id = $1`, [id])
 
         const user = result.rows[0]

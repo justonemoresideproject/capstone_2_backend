@@ -52,7 +52,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 
 router.get("/", ensureAdmin, async function (req, res, next) {
     try {
-        const users = await User.findAll();
+        const users = await User.all();
         return res.json({ users });
     } catch (err) {
         return next(err);
@@ -103,9 +103,9 @@ router.get("/orders/:userId", ensureCorrectUserOrAdmin, async function (req, res
 
 router.get("/addresses/:userId", ensureCorrectUserOrAdmin, async function(req, res, next) {
     try {
-        const customer = await Customer.findUser(req.params.userId)
+        // const customer = await Customer.findUser(req.params.userId)
 
-        const addresses = await Address.get({customerId: customer.id})
+        const addresses = await Address.get(req.params.userId)
 
         return res.status(201).json({ addresses })
     } catch (err) {

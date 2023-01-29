@@ -35,8 +35,12 @@ CREATE TABLE products (
 
 CREATE TABLE shipping_addresses (
     id SERIAL PRIMARY KEY,
+    country TEXT NOT NULL,
+    state TEXT NOT NULL,
+    city TEXT NOT NULL,
     shipping_address TEXT NOT NULL,
     address_type TEXT NOT NULL,
+    postal_code int NOT NULL,
     customer_id int
 );
 

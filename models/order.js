@@ -4,7 +4,7 @@ const Address = require("./address")
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
 
 /* 
 Order Class
@@ -161,44 +161,27 @@ class Order {
 
     static async get(searchFilters = {}) {
         let query = `SELECT * FROM orders`
-        let whereExpressions = []
-        let queryValues = []
 
-        const { id, customerId, addressId, status } = searchFilters
+        console.log(Object.keys(searchFilters).length)
 
-        if(id) {
-            queryValues.push(id)
-            whereExpressions.push(`id = $${queryValues.length}`)
+        if(Object.keys(searchFilters).length > 0) {
+            const { whereCols, values } = sqlForQuery(searchFilters, {
+                customerId: 'customer_id',
+                addressId: 'address_id',
+                deliveredStatus: 'delivered_status',
+                createdAt: 'created_at'
+            })
+
+            query += ` WHERE ${whereCols}`
+
+            const res = await db.query(query, [...values])
+
+            return res.rows
         }
 
-        if(customerId) {
-            queryValues.push(customerId)
-            whereExpressions.push(`customer_id = $${queryValues.length}`)
-        }
+        const res = await db.query(query)
 
-        if(addressId) {
-            queryValues.push(addressId)
-            whereExpressions.push(`address_id = $${queryValues.length}`)
-        }
-
-        if(status) {
-            queryValues.push(status)
-            whereExpressions.push(`delivered_status = $${queryValues.length}`)
-        }
-
-        if (whereExpressions.length > 0) {
-            query += " WHERE " + whereExpressions.join(" AND ");
-        }
-
-        const res = await db.query(query, queryValues)
-
-        if(!res.rows[0]) {
-            throw new NotFoundError(`No order found`)
-        }
-
-        const orders = res.rows
-
-        return orders
+        return res.rows
     }
 
     /** Accepts an orderId and the data to be updated. Pushes information to db and returns the updated order

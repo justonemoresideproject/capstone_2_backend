@@ -3,7 +3,7 @@ const db = require("../db");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 
 class Address {
-    static async register({address, addressType, customerId}) {
+    static async register({country, state, city, address, addressType, postalCode, customerId}) {
         const dupCheck = await db.query(`
             SELECT * FROM shipping_addresses WHERE shipping_address = $1 AND address_type = $2`, [address, addressType])
 
@@ -13,20 +13,30 @@ class Address {
         }
 
         const result = await db.query(`
-            INSERT INTO shipping_addresses (shipping_address, address_type, customer_id)
-            VALUES ($1, $2, $3)
+            INSERT INTO shipping_addresses (country, state, city, shipping_address, address_type, postal_code, customer_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING 
             id,
+            country,
+            state,
+            city,
             shipping_address AS address,
             address_type AS addressType,
+            postal_code AS postalCode,
             customer_id AS customerId`, 
             [
+                country,
+                state,
+                city,
                 address,
                 addressType,
+                postalCode,
                 customerId
             ])
 
         const newAddress = result.rows[0]
+
+        console.log(newAddress)
 
         return newAddress
     }
@@ -35,9 +45,17 @@ class Address {
         const result = await db.query(`
             SELECT * FROM shipping_addresses`)
 
-        const addresses = result.rows[0]
+        const addresses = result.rows
 
         return addresses
+
+        // const returnObject = {}
+
+        // addresses.forEach(address => {
+        //     returnObject[address.id] = address
+        // })
+
+        // return returnObject
     }
 
     static async update(id, data){
@@ -50,20 +68,26 @@ class Address {
         const { setCols, values } = sqlForPartialUpdate(
             data, 
             {
-                shippingAddress: "shipping_address",
-                customerId: "customer_id"
+                address: "shipping_address",
+                addressType: "address_type",
+                customerId: "customer_id",
+                postalCode: "postal_code"
             })
 
             const idVarIdx = "$" + (values.length + 1);
 
             const querySql = `
             UPDATE shipping_addresses 
-            SET ${setCols} 
+            SET ${setCols}
             WHERE id = ${idVarIdx} 
             RETURNING 
                 id,
+                country,
+                state,
+                city,
                 shipping_address AS address,
                 address_type AS addressType,
+                postal_code AS postalCode,
                 customer_id AS customerId`;
 
             const result = await db.query(querySql, [...values, id])
@@ -80,40 +104,6 @@ class Address {
                 id
             ]
         )
-
-        const address = result.rows[0]
-
-        return address
-    }
-
-    static async update(id, data){
-        const addressCheck = await db.query(`SELECT * FROM shipping_address`)
-
-        if(!addressCheck){
-            throw new NotFoundError(`Unknown Address Id: ${id}`)
-        }
-
-        const { setCols, values } = sqlForPartialUpdate(
-            data,
-            {
-                address: "shipping_address",
-                addressType: "address_type",
-                customerId: "customer_id"
-            });
-
-        const idVarIdx = "$" + (values.length + 1);
-
-        const querySql = 
-        `
-            UPDATE products 
-            SET ${setCols} 
-            WHERE id = ${idVarIdx} 
-            RETURNING 
-                shipping_address AS address, 
-                address_type AS addressType,
-                customer_id as customerId
-        `;
-        const result = await db.query(querySql, [...values, id]);
 
         const address = result.rows[0]
 

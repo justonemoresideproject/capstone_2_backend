@@ -3,19 +3,37 @@
     "$id": "http://our.address.com/addressUpdate.schema.json",
     "type": "object",
     "properties": {
+        "country": {
+            "type": "string",
+            "minlength": 1,
+            "maxLength": 56
+        },
+        "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
         "address": {
             "type": "string",
             "minLength": 1,
             "maxLength": 100
         },
-        "type": {
+        "addressType": {
             "type": "string",
             "minLength": 1,
             "maxLength": 50
+        },
+        "postalCode": {
+            "type": "integer"
         },
         "customerId": {
             "type": "integer"
         }
     },
     "additionalProperties": false
-}  
+}

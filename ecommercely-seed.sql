@@ -61,3 +61,14 @@ VALUES (
                18.48,
                'https://cdn.shopify.com/s/files/1/0252/8251/0902/products/product-image-1303172540.jpg?v=1584384449'
         );
+
+INSERT INTO shipping_addresses (country, state, city, shipping_address, address_type, postal_code, customer_id) 
+VALUES (
+                'United States of America',
+                'Missouri',
+                'Joplin',
+                '123 Fake Street',
+                'home',
+                '12345',
+                1
+)

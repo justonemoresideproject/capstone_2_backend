@@ -32,4 +32,18 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
     };
 }
 
-module.exports = { sqlForPartialUpdate };
+function sqlForQuery(dataToQuery, jsToSql) {
+    const keys = Object.keys(dataToQuery);
+    if (keys.length === 0) throw new BadRequestError("No data");
+
+    const cols = keys.map((colName, idx) =>
+        `"${jsToSql[colName] || colName}"=$${idx + 1}`,
+    );
+    
+    return {
+    whereCols: cols.join(" AND "),
+    values: Object.values(dataToQuery)
+    }
+}
+
+module.exports = { sqlForPartialUpdate, sqlForQuery };

@@ -29,9 +29,11 @@ router.post('/', ensureAdmin, async function(req, res, next) {
             throw new BadRequestError(errs);
         }
 
-        const { address, type, customerId } = req.body
+        // const { address, type, customerId } = req.body
 
-        const newAddress = Address.register(req.body)
+        const newAddress = await Address.register(req.body)
+
+        console.log(newAddress)
 
         return res.status(201).json({ newAddress })
     } catch(err) {
@@ -48,9 +50,9 @@ router.post('/', ensureAdmin, async function(req, res, next) {
 
 router.get('/', ensureAdmin, async function(req, res, next) {
     try {
-        const addresses = Address.all()
+        const addresses = await Address.all()
 
-        return res.json({ addresses })
+        return res.json(addresses)
     } catch(err) {
         return next(err)
     }
@@ -85,7 +87,7 @@ router.patch('/:id', ensureAdmin, async function(req, res, next) {
             throw new BadRequestError(errs);
         }
 
-        const address = Address.update(req.params.id, req.body);
+        const address = await Address.update(req.params.id, req.body);
 
         return res.json({ address })
     } catch(err) {

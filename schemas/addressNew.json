@@ -3,6 +3,21 @@
     "$id": "http://our.address.com/addressNew.schema.json",
     "type": "object",
     "properties": {
+        "country": {
+            "type": "string",
+            "minlength": 1,
+            "maxLength": 56
+        },
+        "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "city": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
         "address": {
             "type": "string",
             "minLength": 1,
@@ -13,14 +28,21 @@
             "minLength": 1,
             "maxLength": 50
         },
+        "postalCode": {
+            "type": "integer"
+        },
         "customerId": {
             "type": "integer"
         }
     },
     "additionalProperties": false,
     "required": [
+        "country",
+        "state",
+        "city",
+        "address",
         "addressType",
-        "type",
+        "postalCode",
         "customerId"
     ]
 }  
