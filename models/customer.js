@@ -2,7 +2,7 @@ const { NotFoundError, BadRequestError, UnauthorizedError } = require("../expres
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
 
 const Address = require('./address')
 
@@ -58,101 +58,130 @@ class Customer {
         return customer
     }
 
-    /**Returns all customers with the given user id */
+    static async find(searchFilters = {}) {
+        let query = 'SELECT id, user_id AS "userId", first_name AS "firstName", last_name AS "lastName", created_at AS "createdAt", email, phone FROM customers'
 
-    static async findUser(id) {
-        const res = await db.query(`SELECT * FROM customers WHERE user_id = $1`, [id])
+        if(Object.keys(searchFilters).length > 0) {
+            const { whereCols, values } = sqlForQuery(searchFilters, {
+                userId: 'user_id',
+                firstName: 'first_name',
+                lastName: 'last_name',
+                createdAt: 'created_at'
+            })
 
-        if(!res.rows) {
-            throw new NotFoundError(`Unknown customer with user id: ${id}`)
+            query += ` WHERE ${whereCols}`
+
+            const res = await db.query(query, [...values])
+
+            return res.rows
         }
 
-        const customers = res.rows[0]
+        const res = await db.query(query)
 
-        return customers
+        return res.rows
     }
+
+    // Obsolete due to find method
+
+    /**Returns all customers with the given user id */
+
+    // static async findUser(id) {
+    //     const res = await db.query(`SELECT * FROM customers WHERE user_id = $1`, [id])
+
+    //     if(!res.rows) {
+    //         throw new NotFoundError(`Unknown customer with user id: ${id}`)
+    //     }
+
+    //     const customers = res.rows[0]
+
+    //     return customers
+    // }
+
+    // Obsolete due to find method
 
     /** Returns all customers from database
      * 
      *  Queries currently unsupported
      */
 
-    static async all() {
-        const res = await db.query('SELECT * FROM customers')
+    // static async all() {
+    //     const res = await db.query('SELECT * FROM customers')
 
-        return res.rows
-    }
+    //     return res.rows
+    // }
 
-    static async get(searchFilters = {}) {
-        console.log('customer model get function')
-        let query = `SELECT * FROM customers`
-        let whereExpressions = []
-        let queryValues = []
+    // static async get(searchFilters = {}) {
+    //     console.log('customer model get function')
+    //     let query = `SELECT * FROM customers`
+    //     let whereExpressions = []
+    //     let queryValues = []
 
-        const { userId, id, firstName, lastName } = searchFilters;
+    //     const { userId, id, firstName, lastName } = searchFilters;
 
-        if(userId != undefined) {
-            queryValues.push(userId)
-            whereExpressions.push(`user_id = $${queryValues.length}`)
-        }
+    //     if(userId != undefined) {
+    //         queryValues.push(userId)
+    //         whereExpressions.push(`user_id = $${queryValues.length}`)
+    //     }
 
-        if(id != undefined) {
-            queryValues.push(id)
-            whereExpressions.push(`id = $${queryValues.length}`)
-        }
+    //     if(id != undefined) {
+    //         queryValues.push(id)
+    //         whereExpressions.push(`id = $${queryValues.length}`)
+    //     }
 
-        if(firstName != undefined) {
-            queryValues.push(`%${firstName}%`)
-            whereExpressions.push(`first_name ILIKE $${queryValues.length}`)
-        }
+    //     if(firstName != undefined) {
+    //         queryValues.push(`%${firstName}%`)
+    //         whereExpressions.push(`first_name ILIKE $${queryValues.length}`)
+    //     }
 
-        if(lastName != undefined) {
-            queryValues.push(`%${lastName}%`)
-            whereExpressions.push(`last_name ILIKE $${queryValues.length}`)
-        }
+    //     if(lastName != undefined) {
+    //         queryValues.push(`%${lastName}%`)
+    //         whereExpressions.push(`last_name ILIKE $${queryValues.length}`)
+    //     }
 
-        if(email != undefined) {
-            queryValues.push(`%${email}%`)
-            whereExpressions.push(`email ILIKE $${queryValues.length}`)
-        }
+    //     if(email != undefined) {
+    //         queryValues.push(`%${email}%`)
+    //         whereExpressions.push(`email ILIKE $${queryValues.length}`)
+    //     }
 
-        if (whereExpressions.length > 0) {
-            query += " WHERE " + whereExpressions.join(" AND ");
-        }
+    //     if (whereExpressions.length > 0) {
+    //         query += " WHERE " + whereExpressions.join(" AND ");
+    //     }
 
-        const res = await db.query(query, queryValues)
+    //     const res = await db.query(query, queryValues)
 
-        const customers = res.rows[0]
+    //     const customers = res.rows[0]
 
-        return customers
-    }
+    //     return customers
+    // }
+
+    // Obsolete due to find method
 
     /** Returns a specific customer from database
      * 
      *  throws notfounderror if customer id is unknown
      */
 
-    static async get(id){
-        const res = await db.query(`
-            SELECT * FROM customers 
-            WHERE id = $1
-            RETURNING
-                id,
-                created_at AS "createdAt",
-                email,
-                first_name AS "firstName",
-                last_name AS "lastName",
-                phone,
-                user_id AS "userId"`, [id])
+    // static async get(id){
+    //     const res = await db.query(`
+    //         SELECT * FROM customers 
+    //         WHERE id = $1
+    //         RETURNING
+    //             id,
+    //             created_at AS "createdAt",
+    //             email,
+    //             first_name AS "firstName",
+    //             last_name AS "lastName",
+    //             phone,
+    //             user_id AS "userId"`, [id])
 
-        if(!res.rows[0]){
-            throw new NotFoundError(`Unknown customer id: ${id}`)
-        }
+    //     if(!res.rows[0]){
+    //         throw new NotFoundError(`Unknown customer id: ${id}`)
+    //     }
 
-        const customer = res.rows[0]
+    //     const customer = res.rows[0]
 
-        return customer
-    }
+    //     return customer
+    // }
 
     /** Updates customer with new information
      * 

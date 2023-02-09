@@ -19,14 +19,22 @@ const router = new express.Router({ mergeParams: true });
 */
 
 router.get("/", ensureAdmin, async function(req, res, next) { 
+    const q = req.query
+
+    if(q.id !== undefined) q.id = +q.id;
+    if(q.user_id !== undefined) q.user_id = +q.user_id;
+    if(q.phone !== undefined) q.phone = +q.phone
+
     try {
-        const customers = await Customer.all()
+        const customers = await Customer.find(q)
 
         return res.json({ customers })
     } catch (err) {
         return next(err)
     }
 })
+
+// Redundant since users route already has query route
 
 /** GET /find/[userId] => { customers }
  * Returns all customers with the appropriate user id
@@ -34,17 +42,17 @@ router.get("/", ensureAdmin, async function(req, res, next) {
  * Authorization: Correct User or Admin
  */
 
-router.get('/findUser/:userId', ensureCorrectUserOrAdmin, async function(req, res, next) {
-    try {
-        const id = req.params.userId
+// router.get('/findUser/:userId', ensureCorrectUserOrAdmin, async function(req, res, next) {
+//     try {
+//         const id = req.params.userId
 
-        const customers = await Customer.findUser(id)
+//         const customers = await Customer.findUser(id)
 
-        return res.json({ customers })
-    } catch (err) {
-        return next(err)
-    }
-})
+//         return res.json({ customers })
+//     } catch (err) {
+//         return next(err)
+//     }
+// })
 
 /** POST / => { newCustomer }
  * Uses req.body to accept customer information.
@@ -70,23 +78,25 @@ router.post('/', ensureAdmin, async function(req, res, next) {
     }
 })
 
+// Obsolete due to / route taking on all query functions through find method
+
 /** GET /[id] => { customer }
  * Takes id from req.params and passes to Customer model
  * 
  * Authorization: Admin
  */
 
-router.get('/:id', ensureAdmin, async function(req, res, next) {
-    try {
-        const id = req.params.id
+// router.get('/:id', ensureAdmin, async function(req, res, next) {
+//     try {
+//         const id = req.params.id
 
-        const customer = await Customer.get({id})
+//         const customer = await Customer.get({id})
 
-        return res.json({ customer })
-    } catch (err) {
-        return next(err)
-    }
-})
+//         return res.json({ customer })
+//     } catch (err) {
+//         return next(err)
+//     }
+// })
 
 /** PATCH /[id] => { updatedCustomer }
  * Passes req.params and req.body to Customer instance after validating req.body

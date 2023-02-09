@@ -2,40 +2,33 @@ const { NotFoundError, BadRequestError, UnauthorizedError } = require("../expres
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
 
 class Product {
-    static async all(){
-        const results = await db.query(`
-        SELECT 
-            id, 
-            name, 
-            published, 
-            description, 
-            price, 
-            variant_sku AS "variantSku", 
-            image_source AS "imageSrc" FROM products`)
+    // Obsolete due to find
 
-        const products = {}
+    // static async all(){
+    //     const results = await db.query(`
+    //     SELECT 
+    //         id, 
+    //         name, 
+    //         published, 
+    //         description, 
+    //         price, 
+    //         variant_sku AS "variantSku", 
+    //         image_source AS "imageSrc" FROM products`)
 
-        results.rows.forEach(product => {
-            products[product.id] = {...product}
-        })
+    //     const products = {}
 
-        return products
-    }
+    //     results.rows.forEach(product => {
+    //         products[product.id] = {...product}
+    //     })
+
+    //     return products
+    // }
 
     static async find(searchFilters = {}) {
-        let query = `
-        SELECT 
-            id, 
-            name, 
-            published,
-            description,
-            variant_sku AS variantSku,
-            price,
-            image_source AS imageSource
-        FROM products`
+        let query = 'SELECT id, name, published, description, price, variant_sku AS "variantSku", image_source AS "imageSrc" FROM products'
 
         if(Object.keys(searchFilters).length > 0) {
             const { whereCols, values } = sqlForQuery(searchFilters, {
@@ -53,109 +46,63 @@ class Product {
         const res = await db.query(query)
 
         return res.rows
-
-        // const { id, name, description, variantSku, price, imageSrc } = searchFilters
-
-        // if(id) {
-        //     queryValues.push(id)
-        //     whereExpressions.push(`id = $${queryValues.length}`)
-        // }
-
-        // if(name) {
-        //     queryValues.push(name)
-        //     whereExpressions.push(`name ILIKE %$${queryValues.length}%`)
-        // }
-
-        // if(description) {
-        //     queryValues.push(description)
-        //     whereExpressions.push(`description ILIKE %${queryValues.length}%`)
-        // }
-
-        // if(variantSku) {
-        //     queryValues.push(variantSku)
-        //     whereExpressions.push(`variant_sku = $${queryValues.length}`)
-        // }
-
-        // if(price) {
-        //     queryValues.push(price)
-        //     whereExpressions.push(`price = $${queryValues.length}`)
-        // }
-
-        // if(imageSrc) {
-        //     queryValues.push(imageSrc) 
-        //     whereExpressions.push(`image_source = $${queryValues.length}`)
-        // }
-
-        // if (whereExpressions.length > 0) {
-        //     query += " WHERE " + whereExpressions.join(" AND ");
-        // }
-
-        
-
-        // if(!res.rows[0]) {
-        //     throw new NotFoundError(`No results found`)
-        // }
-
-        // const products = res.rows[0]
-
-        // return products
     }
 
-    static async allNames(){
-        const results = await db.query(`SELECT name FROM products`)
+    // static async allNames(){
+    //     const results = await db.query(`SELECT name FROM products`)
 
-        const productNames = results.rows
+    //     const productNames = results.rows
 
-        return productNames
-    }
+    //     return productNames
+    // }
 
-    static async allDescriptions(){
-        const results = await db.query(`SELECT description FROM products`)
+    // static async allDescriptions(){
+    //     const results = await db.query(`SELECT description FROM products`)
 
-        const productDescriptions = results.rows
+    //     const productDescriptions = results.rows
 
-        return productDescriptions
-    }
+    //     return productDescriptions
+    // }
 
-    static async queryProducts(searchFilters = {}){
-        console.log('query')
-        console.log(searchFilters)
-        const { select, target, lessThan, descOrder } = searchFilters
+    // static async queryProducts(searchFilters = {}){
+    //     console.log('query')
+    //     console.log(searchFilters)
+    //     const { select, target, lessThan, descOrder } = searchFilters
 
-        let query = 'SELECT ';
+    //     let query = 'SELECT ';
 
-        if(select) {
-            select.forEach((ele, index) => {
-                index == select.length - 1 ? query+=`${ele} FROM products` : query+=`${ele}, `
-            })
-        } else {
-            query+=` * FROM products`
-        }
+    //     if(select) {
+    //         select.forEach((ele, index) => {
+    //             index == select.length - 1 ? query+=`${ele} FROM products` : query+=`${ele}, `
+    //         })
+    //     } else {
+    //         query+=` * FROM products`
+    //     }
 
-        if(target != null) {
-            if(lessThan) {
-                query+=` WHERE price >= ${target} `
-            } else {
-                query+= ` WHERE price <= ${target} `
-            }
+    //     if(target != null) {
+    //         if(lessThan) {
+    //             query+=` WHERE price >= ${target} `
+    //         } else {
+    //             query+= ` WHERE price <= ${target} `
+    //         }
 
-            console.log('if statements')
+    //         console.log('if statements')
 
-            if(descOrder) {
-                query+= `ORDER BY price DESC`
-            } else {
-                query+= `ORDER BY price ASC`
-            }
-        }
+    //         if(descOrder) {
+    //             query+= `ORDER BY price DESC`
+    //         } else {
+    //             query+= `ORDER BY price ASC`
+    //         }
+    //     }
 
-        console.log(query)
+    //     console.log(query)
 
-        const results = await db.query(query)
+    //     const results = await db.query(query)
 
-        const ids = results.rows
+    //     const ids = results.rows
 
-        return ids
-    }
+    //     return ids
+    // }
 
     static async add({
         name,
@@ -232,26 +179,28 @@ class Product {
         return product
     }
 
-    static async get(id){
-        const result = await db.query(`SELECT * FROM products 
-        WHERE id = $1
-        RETURNING
-            id,
-            name,
-            published,
-            description,
-            price,
-            variant_sku AS "variantSku",
-            image_source AS "imageSrc"`, [id])
+    // Obsolete due to find method
 
-        if(!result){
-            throw new NotFoundError('Unknown Product Id ')
-        }
+    // static async get(id){
+    //     const result = await db.query(`SELECT * FROM products 
+    //     WHERE id = $1
+    //     RETURNING
+    //         id,
+    //         name,
+    //         published,
+    //         description,
+    //         price,
+    //         variant_sku AS "variantSku",
+    //         image_source AS "imageSrc"`, [id])
 
-        const product = result.rows[0]
+    //     if(!result){
+    //         throw new NotFoundError('Unknown Product Id ')
+    //     }
 
-        return product
-    }
+    //     const product = result.rows[0]
+
+    //     return product
+    // }
 
     static async remove(id){
         const result = await db.query(
@@ -265,22 +214,6 @@ class Product {
             throw new NotFoundError(`Unknown product id: ${id}`)
         }
     }
-
-    // Can be deleted since the image table is no longer necessary
-
-    // static async removeImage(id){
-    //     const result = await db.query(
-    //         `DELETE
-    //         FROM product_images
-    //         WHERE id = $1`, [id]
-    //     )
-
-    //     const image = result.rows[0]
-
-    //     if(!image){
-    //         throw new NotFoundError(`Unknown image id: ${id}`)
-    //     }
-    // }
 }
 
 module.exports = Product

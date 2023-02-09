@@ -29,8 +29,12 @@ router.post('/', ensureAdmin, async function(req, res, next) {
 // No authorization needed. Route to list of products including names, descriptions, prices, and currencies
 
 router.get("/", async function (req, res, next) {
+    const q = req.query
+
+    if(q.id !== undefined) q.id = +q.id;
+
     try {
-        const products = await Product.all()
+        const products = await Product.find(q)
 
         return res.status(201).json({ products })
     } catch (e) {
@@ -38,34 +42,37 @@ router.get("/", async function (req, res, next) {
     }
 })
 
-router.get("/:id", async function (req, res, next) {
-    try {
-        const product = await Product.get(req.params.id);
-        return res.json({ product })
-    } catch (e) {
-        return next(e)
-    }
-})
+// Obsolete due to / route taking on all query functions through find method within model
 
-router.post("/query", async function (req, res, next) {
-    try {
-        const searchFilters = req.body
+// router.get("/:id", async function (req, res, next) {
+//     try {
+//         const product = await Product.get(req.params.id);
+//         return res.json({ product })
+//     } catch (e) {
+//         return next(e)
+//     }
+// })
 
-        const validator = jsonschema.validate(req.body, productPriceQuerySchema);
+// Obsolete due to / route taking on all query functions through find method
 
-        if (!validator.valid) {
-            const errs = validator.errors.map(e => e.stack);
-            throw new BadRequestError(errs);
-        }
+// router.post("/query", async function (req, res, next) {
+//     try {
+//         const searchFilters = req.body
+
+//         const validator = jsonschema.validate(req.body, productPriceQuerySchema);
+
+//         if (!validator.valid) {
+//             const errs = validator.errors.map(e => e.stack);
+//             throw new BadRequestError(errs);
+//         }
         
-        const products = await Product.queryProducts(searchFilters)
+//         const products = await Product.queryProducts(searchFilters)
 
-        return res.status(201).json({ products })
-    } catch (e) {
-        return next(e)
-    }
-})
-
+//         return res.status(201).json({ products })
+//     } catch (e) {
+//         return next(e)
+//     }
+// })
 
 router.patch("/:id", ensureAdmin, async function (req, res, next) {
     try {

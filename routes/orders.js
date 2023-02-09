@@ -25,7 +25,7 @@ router.get('/', ensureCorrectUserOrAdmin, async function(req, res, next) {
     if(q.addressId !== undefined) q.addressId = +q.addressId;
 
     try {
-        const orders = await Order.get(q)
+        const orders = await Order.find(q)
 
         return res.json({ orders })
     } catch (err) {
@@ -57,8 +57,6 @@ router.post("/", async function(req, res, next) {
             throw new BadRequestError(errs);
         }
 
-        console.log(req.body)
-
         const order = await Order.receiveOrder(req.body)
         console.log("Order Route after receive")
 
@@ -68,17 +66,19 @@ router.post("/", async function(req, res, next) {
     }
 })
 
+// Obsolete due to / route taking on all query functions through find method
+
 /** GET /[id] => order */
 
-router.get(`/:id`, async function(req, res, next) {
-    try {
-        const order = await Order.get(req.params.id)
+// router.get(`/:id`, async function(req, res, next) {
+//     try {
+//         const order = await Order.get(req.params.id)
 
-        return res.json({ order })
-    } catch (err) {
-        return next(err)
-    }
-})
+//         return res.json({ order })
+//     } catch (err) {
+//         return next(err)
+//     }
+// })
 
 /** PATCH /[id] => updatedOrder
  * req.body = { informationToUpdate }

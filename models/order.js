@@ -161,7 +161,7 @@ class Order {
      * Throws a NotFoundError when no order is not found
      */
 
-    static async get(searchFilters = {}) {
+    static async find(searchFilters = {}) {
         let query = `
             SELECT 
                 id, 

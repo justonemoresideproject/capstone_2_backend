@@ -1,10 +1,8 @@
-// first step is to set up proper registration with server
-
 const { NotFoundError, BadRequestError, UnauthorizedError } = require("../expressError");
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
 const Customer = require("./customer")
 
 class User {
@@ -94,49 +92,73 @@ class User {
         throw new UnauthorizedError('Invalid username/password')
     }
 
-    static async all() {
-        const result = await db.query(`
-            SELECT 
-                id,
-                username,
-                first_name AS firstName,
-                last_name AS lastName,
-                email,
-                phone,
-                is_admin AS isAdmin
-            FROM 
-                users`)
+    static async find(searchFilters = {}) {
+        let query = 'SELECT id, username, first_name AS "firstName", last_name AS "lastName", email, phone, is_admin AS "isAdmin" FROM users'
 
-        return result.rows
-    }
+        if(Object.keys(searchFilters).length > 0) {
+            const { whereCols, values } = sqlForQuery(searchFilters, {
+                firstName: 'first_name',
+                lastName: 'last_name',
+                isAdmin: 'is_admin'
+            })
 
-    static async getById(id) {
-        const result = await db.query(`
-            SELECT * FROM users
-            WHERE id = $1`, [id])
+            query += ` WHERE ${whereCols}`
 
-        const user = result.rows[0]
+            const res = await db.query(query, [...values])
 
-        if(!user) {
-            throw new NotFoundError(`No user ID: ${userId}`)
+            return res.rows
         }
 
-        return user
+        const res = await db.query(query)
+
+        return res.rows
     }
 
-    static async getByName(username) {
-        const result = await db.query(`
-            SELECT * FROM users
-            WHERE username = $1`, [username])
+    // Obsolete due to find method
 
-        const user = result.rows[0];
+    // static async all() {
+    //     const result = await db.query(`
+    //         SELECT 
+    //             id,
+    //             username,
+    //             first_name AS "firstName",
+    //             last_name AS "lastName",
+    //             email,
+    //             phone,
+    //             is_admin AS "isAdmin"
+    //         FROM 
+    //             users`)
 
-        if (!user) {
-            throw new NotFoundError(`No user: ${username}`);
-        }
+    //     return result.rows
+    // }
+
+    // static async getById(id) {
+    //     const result = await db.query(`
+    //         SELECT * FROM users
+    //         WHERE id = $1`, [id])
+
+    //     const user = result.rows[0]
+
+    //     if(!user) {
+    //         throw new NotFoundError(`No user ID: ${userId}`)
+    //     }
+
+    //     return user
+    // }
+
+    // static async getByName(username) {
+    //     const result = await db.query(`
+    //         SELECT * FROM users
+    //         WHERE username = $1`, [username])
+
+    //     const user = result.rows[0];
+
+    //     if (!user) {
+    //         throw new NotFoundError(`No user: ${username}`);
+    //     }
         
-        return user
-    }
+    //     return user
+    // }
 
     static async update(userId, data){
         if(data.password) {

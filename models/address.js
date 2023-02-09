@@ -1,6 +1,6 @@
 const { UnauthorizedError, NotFoundError } = require("../expressError");
 const db = require("../db");
-const { sqlForPartialUpdate } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForQuery } = require("../helpers/sql");
 
 class Address {
     static async register({country, state, city, street, addressType, postalCode, customerId}) {
@@ -41,31 +41,45 @@ class Address {
         return newAddress
     }
 
-    static async all(){
-        const result = await db.query(`
-        SELECT 
-            id, 
-            country, 
-            state, 
-            city, 
-            street, 
-            address_type AS addressType, 
-            postal_code AS postalCode, 
-            customer_id AS customerId 
-        FROM shipping_addresses`)
+    static async find(searchFilters = {}) {
+        let query = 'SELECT id, country, state, city, street, address_type AS "addressType", postal_code AS "postalCode", customer_id AS "customerId" FROM shipping_addresses'
 
-        const addresses = result.rows
+        if(Object.keys(searchFilters).length > 0) {
+            const { whereCols, values } = sqlForQuery(searchFilters, {
+                addressType: 'address_type',
+                postalCode: 'postal_code',
+                customerId: 'customer_id'
+            })
 
-        return addresses
+            query += ` WHERE ${whereCols}`
 
-        // const returnObject = {}
+            const res = await db.query(query, [...values])
 
-        // addresses.forEach(address => {
-        //     returnObject[address.id] = address
-        // })
+            return res.rows
+        }
 
-        // return returnObject
+        const res = await db.query(query)
+
+        return res.rows
     }
+
+    // static async all(){
+    //     const result = await db.query(`
+    //     SELECT 
+    //         id, 
+    //         country, 
+    //         state, 
+    //         city, 
+    //         street, 
+    //         address_type AS addressType, 
+    //         postal_code AS postalCode, 
+    //         customer_id AS customerId 
+    //     FROM shipping_addresses`)
+
+    //     const addresses = result.rows
+
+    //     return addresses
+    // }
 
     static async update(id, data){
         const addressCheck = await db.query(`SELECT * FROM shipping_addresses WHERE id = $1`, [id])
@@ -105,18 +119,20 @@ class Address {
             return address
     }
 
-    static async get(id){
-        const result = await db.query(
-            `SELECT * FROM shipping_addresses WHERE id = $1`, 
-            [
-                id
-            ]
-        )
+    // Obsolete due to find method
 
-        const address = result.rows[0]
+    // static async get(id){
+    //     const result = await db.query(
+    //         `SELECT * FROM shipping_addresses WHERE id = $1`, 
+    //         [
+    //             id
+    //         ]
+    //     )
 
-        return address
-    }
+    //     const address = result.rows[0]
+
+    //     return address
+    // }
 
     static async remove(id) {
         const result = await db.query(

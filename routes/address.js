@@ -49,8 +49,13 @@ router.post('/', ensureAdmin, async function(req, res, next) {
  */
 
 router.get('/', ensureAdmin, async function(req, res, next) {
+    const q = req.query
+
+    if(q.id !== undefined) q.id = +q.id;
+    if(q.customer_id !== undefined) q.customer_id = +q.customer_id
+
     try {
-        const addresses = await Address.all()
+        const addresses = await Address.find(q)
 
         return res.json(addresses)
     } catch(err) {
@@ -58,20 +63,22 @@ router.get('/', ensureAdmin, async function(req, res, next) {
     }
 })
 
+// Obsolete due to / route taking on all query functions through find method within model
+
 /** GET /[id] => address
  * 
  * Authorization: Admin
  */
 
-router.get('/:id', ensureAdmin, async function(req, res, next) {
-    try {
-        const address = Address.get(req.params.id)
+// router.get('/:id', ensureAdmin, async function(req, res, next) {
+//     try {
+//         const address = Address.get(req.params.id)
 
-        return res.json({ address })
-    } catch(err) {
-        return next(err)
-    }
-})
+//         return res.json({ address })
+//     } catch(err) {
+//         return next(err)
+//     }
+// })
 
 /** PATH /[id] => updated address
  * 

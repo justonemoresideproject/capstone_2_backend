@@ -51,8 +51,12 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  **/
 
 router.get("/", ensureAdmin, async function (req, res, next) {
+    const q = req.query
+
+    if(q.id !== undefined) q.id = +q.id;
+
     try {
-        const users = await User.all();
+        const users = await User.find(q);
         return res.json({ users });
     } catch (err) {
         return next(err);
@@ -84,7 +88,7 @@ router.get("/:userId", ensureCorrectUserOrAdmin, async function (req, res, next)
  * Authorization required: Admin or same user 
  **/
 
-router.get("/orders/:userId", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.get("/orders/:customerId", ensureCorrectUserOrAdmin, async function (req, res, next) {
     try {
         const customer = await Customer.findUser(req.params.userId)
 
