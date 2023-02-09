@@ -26,55 +26,79 @@ class Product {
     }
 
     static async find(searchFilters = {}) {
-        let query = `SELECT * FROM products`
-        let whereExpressions = []
-        let queryValues = []
+        let query = `
+        SELECT 
+            id, 
+            name, 
+            published,
+            description,
+            variant_sku AS variantSku,
+            price,
+            image_source AS imageSource
+        FROM products`
 
-        const { id, name, description, variantSku, price, imageSrc } = searchFilters
+        if(Object.keys(searchFilters).length > 0) {
+            const { whereCols, values } = sqlForQuery(searchFilters, {
+                variantSku: 'variant_sku',
+                imageSource: 'image_source'
+            })
 
-        if(id) {
-            queryValues.push(id)
-            whereExpressions.push(`id = $${queryValues.length}`)
+            query += ` WHERE ${whereCols}`
+
+            const res = await db.query(query, [...values])
+
+            return res.rows
         }
 
-        if(name) {
-            queryValues.push(name)
-            whereExpressions.push(`name ILIKE %$${queryValues.length}%`)
-        }
+        const res = await db.query(query)
 
-        if(description) {
-            queryValues.push(description)
-            whereExpressions.push(`description ILIKE %${queryValues.length}%`)
-        }
+        return res.rows
 
-        if(variantSku) {
-            queryValues.push(variantSku)
-            whereExpressions.push(`variant_sku = $${queryValues.length}`)
-        }
+        // const { id, name, description, variantSku, price, imageSrc } = searchFilters
 
-        if(price) {
-            queryValues.push(price)
-            whereExpressions.push(`price = $${queryValues.length}`)
-        }
+        // if(id) {
+        //     queryValues.push(id)
+        //     whereExpressions.push(`id = $${queryValues.length}`)
+        // }
 
-        if(imageSrc) {
-            queryValues.push(imageSrc) 
-            whereExpressions.push(`image_source = $${queryValues.length}`)
-        }
+        // if(name) {
+        //     queryValues.push(name)
+        //     whereExpressions.push(`name ILIKE %$${queryValues.length}%`)
+        // }
 
-        if (whereExpressions.length > 0) {
-            query += " WHERE " + whereExpressions.join(" AND ");
-        }
+        // if(description) {
+        //     queryValues.push(description)
+        //     whereExpressions.push(`description ILIKE %${queryValues.length}%`)
+        // }
 
-        const res = await db.query(query, queryValues)
+        // if(variantSku) {
+        //     queryValues.push(variantSku)
+        //     whereExpressions.push(`variant_sku = $${queryValues.length}`)
+        // }
 
-        if(!res.rows[0]) {
-            throw new NotFoundError(`No results found`)
-        }
+        // if(price) {
+        //     queryValues.push(price)
+        //     whereExpressions.push(`price = $${queryValues.length}`)
+        // }
 
-        const products = res.rows[0]
+        // if(imageSrc) {
+        //     queryValues.push(imageSrc) 
+        //     whereExpressions.push(`image_source = $${queryValues.length}`)
+        // }
 
-        return products
+        // if (whereExpressions.length > 0) {
+        //     query += " WHERE " + whereExpressions.join(" AND ");
+        // }
+
+        
+
+        // if(!res.rows[0]) {
+        //     throw new NotFoundError(`No results found`)
+        // }
+
+        // const products = res.rows[0]
+
+        // return products
     }
 
     static async allNames(){

@@ -3,9 +3,9 @@ const db = require("../db");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 
 class Address {
-    static async register({country, state, city, address, addressType, postalCode, customerId}) {
+    static async register({country, state, city, street, addressType, postalCode, customerId}) {
         const dupCheck = await db.query(`
-            SELECT * FROM shipping_addresses WHERE shipping_address = $1 AND address_type = $2`, [address, addressType])
+            SELECT * FROM shipping_addresses WHERE shipping_address = $1 AND address_type = $2`, [street, addressType])
 
         if(dupCheck.rows[0]){
             const dupAddress = dupCheck.rows[0]
@@ -20,7 +20,7 @@ class Address {
             country,
             state,
             city,
-            shipping_address AS address,
+            street,
             address_type AS addressType,
             postal_code AS postalCode,
             customer_id AS customerId`, 
@@ -28,7 +28,7 @@ class Address {
                 country,
                 state,
                 city,
-                address,
+                street,
                 addressType,
                 postalCode,
                 customerId
@@ -43,7 +43,16 @@ class Address {
 
     static async all(){
         const result = await db.query(`
-            SELECT * FROM shipping_addresses`)
+        SELECT 
+            id, 
+            country, 
+            state, 
+            city, 
+            street, 
+            address_type AS addressType, 
+            postal_code AS postalCode, 
+            customer_id AS customerId 
+        FROM shipping_addresses`)
 
         const addresses = result.rows
 
@@ -68,7 +77,6 @@ class Address {
         const { setCols, values } = sqlForPartialUpdate(
             data, 
             {
-                address: "shipping_address",
                 addressType: "address_type",
                 customerId: "customer_id",
                 postalCode: "postal_code"
@@ -85,7 +93,7 @@ class Address {
                 country,
                 state,
                 city,
-                shipping_address AS address,
+                street,
                 address_type AS addressType,
                 postal_code AS postalCode,
                 customer_id AS customerId`;

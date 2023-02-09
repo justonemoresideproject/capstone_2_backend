@@ -106,14 +106,16 @@ class Order {
     */
 
     static async createCustomerAndOrder(customerInfo, products) {
-        const { firstName, lastName, email, phone, address, addressType } = customerInfo
+        const { firstName, lastName, email, phone, street, country, city, state, addressType } = customerInfo
 
         const newCustomer = await Customer.register({firstName, lastName, email, phone});
         console.log("After new customer")
 
         const customerId = newCustomer.id
 
-        const addressInfo = { address, addressType, customerId }
+        const addressInfo = { street, city, state, country, addressType, customerId }
+
+        console.log(addressInfo)
         const newAddress = await Address.register(addressInfo);
 
         const addressId = newAddress.id
@@ -160,9 +162,14 @@ class Order {
      */
 
     static async get(searchFilters = {}) {
-        let query = `SELECT * FROM orders`
-
-        console.log(Object.keys(searchFilters).length)
+        let query = `
+            SELECT 
+                id, 
+                customer_id AS customerId,
+                created_at AS createdAt,
+                delivered_status AS deliveredStatus,
+                address_id AS addressId
+            FROM orders`
 
         if(Object.keys(searchFilters).length > 0) {
             const { whereCols, values } = sqlForQuery(searchFilters, {

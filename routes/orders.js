@@ -57,6 +57,8 @@ router.post("/", async function(req, res, next) {
             throw new BadRequestError(errs);
         }
 
+        console.log(req.body)
+
         const order = await Order.receiveOrder(req.body)
         console.log("Order Route after receive")
 

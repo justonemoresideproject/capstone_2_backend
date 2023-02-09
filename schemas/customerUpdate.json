@@ -3,6 +3,9 @@
     "$id": "http://our.customer.com/customerNew.schema.json",
     "type": "object",
     "properties": {
+        "userId": {
+            "type": ["string", "null"]
+        },
         "firstName": {
             "type": "string",
             "minLength": 1,
