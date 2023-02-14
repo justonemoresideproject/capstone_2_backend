@@ -4,7 +4,7 @@ const Address = require("./address")
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery, returnSqlObject } = require('../helpers/sql')
 
 /* 
 Order Class
@@ -106,16 +106,14 @@ class Order {
     */
 
     static async createCustomerAndOrder(customerInfo, products) {
-        const { firstName, lastName, email, phone, street, country, city, state, addressType } = customerInfo
+        const { firstName, lastName, email, phone, street, country, city, state, postalCode, addressType } = customerInfo
 
         const newCustomer = await Customer.register({firstName, lastName, email, phone});
-        console.log("After new customer")
 
         const customerId = newCustomer.id
 
-        const addressInfo = { street, city, state, country, addressType, customerId }
+        const addressInfo = { country, state, city, street, postalCode, addressType, customerId }
 
-        console.log(addressInfo)
         const newAddress = await Address.register(addressInfo);
 
         const addressId = newAddress.id
@@ -165,10 +163,10 @@ class Order {
         let query = `
             SELECT 
                 id, 
-                customer_id AS customerId,
-                created_at AS createdAt,
-                delivered_status AS deliveredStatus,
-                address_id AS addressId
+                customer_id AS "customerId",
+                created_at AS "createdAt",
+                delivered_status AS "deliveredStatus",
+                address_id AS "addressId"
             FROM orders`
 
         if(Object.keys(searchFilters).length > 0) {
@@ -183,12 +181,12 @@ class Order {
 
             const res = await db.query(query, [...values])
 
-            return res.rows
+            return returnSqlObject(res.rows)
         }
 
         const res = await db.query(query)
 
-        return res.rows
+        return returnSqlObject(res.rows)
     }
 
     /** Accepts an orderId and the data to be updated. Pushes information to db and returns the updated order
@@ -235,9 +233,9 @@ class Order {
             WHERE id = ${idVarIdx} 
             RETURNING 
                 id,
-                customer_id AS customerId, 
-                address_id AS addressId, 
-                created_at AS createdAt,
+                customer_id AS "customerId", 
+                address_id AS "addressId", 
+                created_at AS "createdAt",
                 delivered_status AS status
             `;
         
@@ -245,7 +243,7 @@ class Order {
 
         const order = result.rows[0]
 
-        return order
+        return returnSqlObject(order)
     }
 
     /** Accepts an orderId, productId and quantity and creates a new orderLineItem in db.
@@ -272,11 +270,11 @@ class Order {
         )
         VALUES ($1, $2, $3, $4)
         RETURNING
-        id AS itemId,
-        order_id AS orderId,
-        product_id AS productId,
+        id AS "itemId",
+        order_id AS "orderId",
+        product_id AS "productId",
         quantity,
-        created_at AS createdAt`, 
+        created_at AS "createdAt"`, 
         [
             orderId, 
             productId, 
@@ -286,7 +284,7 @@ class Order {
 
         const item = res.rows[0]
 
-        return item
+        return returnSqlObject(item)
     }
 
     /** Accepts orderId and products object to create multiple new orderLineItems in db
@@ -307,11 +305,11 @@ class Order {
                     timeStamp
                 )
 
-                return orderItem
+                return returnSqlObject(orderItem)
             })
         )
 
-        return items
+        return returnSqlObject(items)
     }
 
     /** Accepts an order id and removes order from database

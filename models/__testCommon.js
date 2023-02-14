@@ -21,16 +21,15 @@ async function commonBeforeAll() {
         INSERT INTO products (name, description, variant_sku, price, image_source, published)
         VALUES ('Furby', 'furry and stuff', '30703423', 5.00, 'test.jpg', true)`);
     productIds.splice(0, 0, products.rows.map(r => r.id))
-    
 
     const customers = await db.query(`
-        INSERT INTO customers (first_name, last_name, email, phone) 
-        VALUES ('Bob', 'Builder', 'test@test.com', 5553332211)`);
+        INSERT INTO customers (user_id, first_name, last_name, email, phone) 
+        VALUES ('2', 'Bob', 'Builder', 'test@test.com', 5553332211)`);
     customerIds.splice(0, 0, customers.rows.map(r => r.id))
 
     const shipping_addresses = await db.query(`
-        INSERT INTO shipping_addresses (shipping_address, address_type, customer_id)
-        VALUES ('123 fake street', 'home', 1)`);
+        INSERT INTO shipping_addresses (country, state, city, street, address_type, postal_code, customer_id)
+        VALUES ('United States of America', 'Missouri', 'Joplin', '124 Fake Street', 'home', '12345', '3')`);
     shippingAddressIds.splice(0, 0, shipping_addresses.rows.map(r => r.id))
 
     const orders = await db.query(`

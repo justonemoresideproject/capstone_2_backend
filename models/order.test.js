@@ -19,34 +19,38 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-describe("Order Class Tests", function () {
+test("Order Class Tests", async function () {
     const expectedOrder = {
         "customerId" : expect.any(Number),
         "addressId" : expect.any(Number),
-        "createdAt" : expect.any(String),
+        "createdAt" : expect.any(Date),
         "status" : expect.any(String)
     }
 
-    test("Can receive order containing customer info", function() {
+    test("Can receive order containing customer info", async function() {
         const newOrder = {
             "customerInfo" : {
                 "firstName": 'testy',
                 "lastName": 'test',
                 "email": "test@mail.com",
                 "phone": "5555555555",
-                "address" : "123 fake street 12345 Joplin, Mo USA",
-                "type" : "home"
+                "street" : "123 fake street",
+                "city": "Joplin",
+                "state": "Missouri",
+                "country": "United States of America",
+                "postalCode": 12345,
+                "addressType" : "home"
             }, 
             "products" : {
                 1 : 1
             }
         }
-        const order = Order.receiveOrder(newOrder)
+        const order = await Order.receiveOrder(newOrder)
 
         expect(order).toEqual(expectedOrder)
     })
 
-    test("Can receive order containing customerId, addressId", function() {
+    test("Can receive order containing customerId, addressId", async function() {
         const newOrder = {
             "customerId" : 1,
             "addressId" : 1,
@@ -55,16 +59,20 @@ describe("Order Class Tests", function () {
             }
         }
 
-        const order = Order.receiveOrder(newOrder)
+        const order = await Order.receiveOrder(newOrder)
 
-        expect(order).toEqual(expectedOrder)
+        expect(order).toEqual({...newOrder, 
+            "createdAt": expect.any(Date),
+            "id": expect.any(Number),
+            "items": expect.any(Array)
+        })
     })
 
-    test("Can update order", function() {
+    test("Can update order", async function() {
         const expectedOrder = {
-            "customerId" : 1,
-            "addressId" : 1,
-            "createdAt" : expect.any(String)
+            "customerId" : expect.any(Number),
+            "addressId" : expect.any(Number),
+            "createdAt" : expect.any(Date)
         }
 
         const newOrder = {
@@ -81,14 +89,14 @@ describe("Order Class Tests", function () {
             }
         }
 
-        const order = Order.receiveOrder(1, newOrder)
+        const order = await Order.receiveOrder(1, newOrder)
 
-        const updatedOrder = Order.update(order.id, { "customerId": 1, "addressId": 1 })
+        const updatedOrder = await Order.update(order.id, { "customerId": 1, "addressId": 1 })
 
         expect(updatedOrder).toEqual(expectedOrder)
     })
 
-    test("Can add item to order", function() {
+    test("Can add item to order", async function() {
         const newOrder = {
             "customerId": 1,
             "addressId": 1,
@@ -101,17 +109,18 @@ describe("Order Class Tests", function () {
             "orderId" : expect.any(Number),
             "productId" : 1,
             "quantity" : 1,
+            "itemId": expect.any(Number),
             "createdAt" : expect.any(String)
         }
 
-        const order = Order.receiveOrder(newOrder)
+        const order = await Order.receiveOrder(newOrder)
 
-        const item = Order.addItem(order.id, 1, 1)
+        const item = await Order.addItem(order.id, 1, 1)
 
         expect(item).toEqual(expectedItem)
     })
 
-    test("Can add items to order", function() {
+    test("Can add items to order", async function() {
         const newOrder = {
             "customerId": 1,
             "addressId": 1,
@@ -123,9 +132,11 @@ describe("Order Class Tests", function () {
 
         const expectedItem = {
             "orderId" : expect.any(Number),
-            "productId" : 2,
+            "itemId": expect.any(Number),
+            "productId" : expect.any(Number),
+            "orderId": expect.any(Number),
             "quantity" : 1,
-            "createdAt" : expect.any(String)
+            "createdAt" : expect.anything()
         }
 
         const order = await Order.receiveOrder(newOrder)

@@ -47,20 +47,25 @@ describe("register", function () {
 
 describe("authenticate", function() {
     test("works", async function() {
-        const user = await User.authenticate("secondTest", "password")
 
-        // expect(user.rows[0].is_admin).toEqual(false);
-        // expect(user.rows[0].password.startsWith("$2b$")).toEqual(true);
-
-        expect(user.rows[0]).toEqual({
+        const user = {
             username: "test",
             firstName: "jim",
             lastName: "bo",
             email: "jimbo@gmail.com",
             phone: "1112223333",
-            password: startsWith("$2b$"),
+            password: 'banana',
             isAdmin: false
-        });
+        }
+
+        await User.register(user)
+        const authenticatedUser = await User.authenticate(user.username, user.password)
+
+        // expect(user.rows[0].is_admin).toEqual(false);
+        // expect(user.rows[0].password.startsWith("$2b$")).toEqual(true);
+        // password: startsWith("$2b$")
+
+        expect(authenticatedUser.rows[0]).toEqual(user);
     });
 
     test("unauth if no such user", async function(){

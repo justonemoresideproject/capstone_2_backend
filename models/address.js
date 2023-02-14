@@ -1,11 +1,26 @@
 const { UnauthorizedError, NotFoundError } = require("../expressError");
 const db = require("../db");
-const { sqlForPartialUpdate, sqlForQuery } = require("../helpers/sql");
+const { sqlForPartialUpdate, sqlForQuery, returnSqlObject } = require("../helpers/sql");
 
 class Address {
     static async register({country, state, city, street, addressType, postalCode, customerId}) {
         const dupCheck = await db.query(`
-            SELECT * FROM shipping_addresses WHERE shipping_address = $1 AND address_type = $2`, [street, addressType])
+            SELECT * FROM shipping_addresses WHERE 
+            country = $1 AND 
+            state = $2 AND
+            city = $3 AND 
+            street = $4 AND
+            address_type = $5 AND
+            postal_code = $6 AND
+            customer_id= $7`, 
+            [
+                country, 
+                state, 
+                city, 
+                street, 
+                addressType, 
+                postalCode, 
+                customerId])
 
         if(dupCheck.rows[0]){
             const dupAddress = dupCheck.rows[0]
@@ -13,7 +28,7 @@ class Address {
         }
 
         const result = await db.query(`
-            INSERT INTO shipping_addresses (country, state, city, shipping_address, address_type, postal_code, customer_id)
+            INSERT INTO shipping_addresses (country, state, city, street, address_type, postal_code, customer_id)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING 
             id,
@@ -36,9 +51,7 @@ class Address {
 
         const newAddress = result.rows[0]
 
-        console.log(newAddress)
-
-        return newAddress
+        return returnSqlObject(newAddress)
     }
 
     static async find(searchFilters = {}) {
@@ -55,12 +68,12 @@ class Address {
 
             const res = await db.query(query, [...values])
 
-            return res.rows
+            return returnSqlObject(res.rows)
         }
 
         const res = await db.query(query)
 
-        return res.rows
+        return returnSqlObject(res.rows)
     }
 
     // static async all(){
@@ -116,7 +129,7 @@ class Address {
 
             const address = result.rows[0]
         
-            return address
+            return returnSqlObject(address)
     }
 
     // Obsolete due to find method

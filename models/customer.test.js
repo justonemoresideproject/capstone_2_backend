@@ -32,8 +32,8 @@ describe("Customer Class Tests", function () {
         expect(newCustomer).toEqual({
             ...customerInfo,
             id: expect.any(Number),
-            createdAt: expect.anything,
-            userId: expect.null
+            createdAt: expect.anything(),
+            userId: null
         })
     })
 
@@ -51,14 +51,15 @@ describe("Customer Class Tests", function () {
 
         expect(updatedCustomer).toEqual({
             ...updateInfo,
-            id: expect.any(Number)
+            id: expect.any(Number),
+            userId: null
         })
     })
 
     test("Can get customer", async function() {
         const newCustomer = await Customer.register(customerInfo)
 
-        const foundCustomer = await Customer.get(newCustomer.id)
+        const foundCustomer = await Customer.find(newCustomer.id)
 
         expect(foundCustomer).toEqual(newCustomer)
     })

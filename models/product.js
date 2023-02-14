@@ -2,7 +2,7 @@ const { NotFoundError, BadRequestError, UnauthorizedError } = require("../expres
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery, returnSqlObject } = require('../helpers/sql')
 
 class Product {
     // Obsolete due to find
@@ -40,12 +40,12 @@ class Product {
 
             const res = await db.query(query, [...values])
 
-            return res.rows
+            return returnSqlObject(res.rows)
         }
 
         const res = await db.query(query)
 
-        return res.rows
+        return returnSqlObject(res.rows)
     }
 
     // static async allNames(){
@@ -122,7 +122,7 @@ class Product {
             variant_sku,
             image_source
         )
-        VALUES ($1, $2, $3, $4, $5)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING
             id,
             name,
@@ -137,12 +137,13 @@ class Product {
             published,
             description,
             price,
+            variantSku,
             imageSrc
         ])
 
         const product = result.rows[0]
 
-        return product
+        return returnSqlObject(product)
     }
 
     static async update(id, data){
@@ -176,7 +177,7 @@ class Product {
 
         const product = result.rows[0]
 
-        return product
+        return returnSqlObject(product)
     }
 
     // Obsolete due to find method
@@ -208,7 +209,7 @@ class Product {
             FROM products 
             WHERE id = $1`, [id])
 
-        const product = result.rows[0]
+        const product = returnSqlObject(result.rows[0])
 
         if(!product){
             throw new NotFoundError(`Unknown product id: ${id}`)

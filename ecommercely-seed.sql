@@ -72,3 +72,11 @@ VALUES (
                 '12345',
                 1
 )
+
+INSERT INTO orders (id, customer_id, created_at, delivered_status, address_id) 
+VALUES (
+                '1',
+                '1',
+                '2023'
+
+)

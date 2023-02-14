@@ -2,7 +2,7 @@ const { NotFoundError, BadRequestError, UnauthorizedError } = require("../expres
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery, returnSqlObject } = require('../helpers/sql')
 
 const Address = require('./address')
 
@@ -55,7 +55,7 @@ class Customer {
 
         const customer = result.rows[0]
 
-        return customer
+        return returnSqlObject(customer)
     }
 
     static async find(searchFilters = {}) {
@@ -73,12 +73,12 @@ class Customer {
 
             const res = await db.query(query, [...values])
 
-            return res.rows
+            return returnSqlObject(res.rows)
         }
 
         const res = await db.query(query)
 
-        return res.rows
+        return returnSqlObject(res.rows)
     }
 
     // Obsolete due to find method
@@ -199,7 +199,8 @@ class Customer {
             data,
             {
                 firstName: "first_name",
-                lastName: "last_name"
+                lastName: "last_name",
+                userId: "user_id"
             });
 
         const idVarIdx = "$" + (values.length + 1);
@@ -210,6 +211,7 @@ class Customer {
             WHERE id = ${idVarIdx} 
             RETURNING 
                 id,
+                user_id AS "userId",
                 first_name AS "firstName",
                 last_name AS "lastName",
                 email,
@@ -219,7 +221,7 @@ class Customer {
 
         const customer = result.rows[0]
 
-        return customer
+        return returnSqlObject(customer)
     }
 
 
@@ -240,7 +242,7 @@ class Customer {
 
         if(!customer) throw new NotFoundError(`No customer id: ${id}`)
 
-        return customer
+        return returnSqlObject(customer)
     }
 }
 

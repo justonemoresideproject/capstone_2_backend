@@ -46,4 +46,15 @@ function sqlForQuery(dataToQuery, jsToSql) {
     }
 }
 
-module.exports = { sqlForPartialUpdate, sqlForQuery };
+function returnSqlObject(sqlRow) {
+    if(typeof(sqlRow) === 'string' || typeof(sqlRow) === 'object' && sqlRow.length === undefined) return sqlRow
+    const obj = {}
+
+    sqlRow.forEach(element => {
+        obj[element.id] = element
+    });
+
+    return obj
+}
+
+module.exports = { sqlForPartialUpdate, sqlForQuery, returnSqlObject };

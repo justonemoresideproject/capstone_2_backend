@@ -21,12 +21,27 @@
                     "format": "email"
                 }, 
                 "phone": {
-                    "type": "string",
+                    "type": "integer",
                     "minLength": 10,
                     "maxLength": 20,
                     "Pattern": "^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$"
                 },
-                "address": {
+                "country": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "state": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "city": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "street": {
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 100

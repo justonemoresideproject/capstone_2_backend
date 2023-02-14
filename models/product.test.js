@@ -52,14 +52,17 @@ describe("Product Class Tests", function () {
         expect(productEdit).toEqual({
             ...editInfo,
             price: "6.00",
-            id: expect.any(Number)
+            id: expect.any(Number),
+            imageSrc: "test.jpg",
+            published: true,
+            variantSku: "123test"
         })
     })
 
     test("can find product", async function() {
         const product = await Product.add(newProduct)
 
-        const foundProduct = await Product.get(product.id)
+        const foundProduct = await Product.find(product.id)
 
         expect(foundProduct).toEqual(product)
     })

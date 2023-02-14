@@ -58,7 +58,6 @@ router.post("/", async function(req, res, next) {
         }
 
         const order = await Order.receiveOrder(req.body)
-        console.log("Order Route after receive")
 
         return res.status(201).json({ order })
     } catch (err) {

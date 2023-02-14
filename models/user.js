@@ -2,7 +2,7 @@ const { NotFoundError, BadRequestError, UnauthorizedError } = require("../expres
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
-const { sqlForPartialUpdate, sqlForQuery } = require('../helpers/sql')
+const { sqlForPartialUpdate, sqlForQuery, returnSqlObject } = require('../helpers/sql')
 const Customer = require("./customer")
 
 class User {
@@ -86,7 +86,7 @@ class User {
             const isValid = await bcrypt.compare(password, user.password);
             if (isValid) {
                 delete user.password
-                return user
+                return returnSqlObject(user)
             }
         }
         throw new UnauthorizedError('Invalid username/password')
@@ -106,12 +106,12 @@ class User {
 
             const res = await db.query(query, [...values])
 
-            return res.rows
+            return returnSqlObject(res.rows)
         }
 
         const res = await db.query(query)
 
-        return res.rows
+        return returnSqlObject(res.rows)
     }
 
     // Obsolete due to find method
