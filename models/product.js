@@ -45,6 +45,8 @@ class Product {
 
         const res = await db.query(query)
 
+        console.log(res.rows)
+
         return returnSqlObject(res.rows)
     }
 

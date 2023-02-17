@@ -46,15 +46,32 @@ function sqlForQuery(dataToQuery, jsToSql) {
     }
 }
 
+// Adjusts values on objects to no longer use null
+function ensureCorrectOutput(obj) {
+    keys = Object.keys(obj)
+    
+    keys.forEach(key => {
+        if(obj[key] === null && key.toLowerCase().includes('id')) obj[key] = 0
+        if(obj[key] === null) obj[key] = 'Not Given'
+        if(obj[key].length === undefined && typeof(obj[key]) === 'object') {
+            ensureCorrectOutput(obj[key])
+        }
+    })
+
+    return obj
+}
+
+// Accepts an array and returns an object
 function returnSqlObject(sqlRow) {
     if(typeof(sqlRow) === 'string' || typeof(sqlRow) === 'object' && sqlRow.length === undefined) return sqlRow
+    
     const obj = {}
 
     sqlRow.forEach(element => {
         obj[element.id] = element
     });
 
-    return obj
+    return ensureCorrectOutput(obj)
 }
 
 module.exports = { sqlForPartialUpdate, sqlForQuery, returnSqlObject };

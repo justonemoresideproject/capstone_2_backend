@@ -221,6 +221,7 @@ class Order {
             {
                 addressId: "address_id",
                 customerId: "customer_id",
+                deliveredStatus: "delivered_status",
                 status: "delivered_status"
             }
         );
@@ -236,7 +237,7 @@ class Order {
                 customer_id AS "customerId", 
                 address_id AS "addressId", 
                 created_at AS "createdAt",
-                delivered_status AS status
+                delivered_status AS "deliveredStatus"
             `;
         
         const result = await db.query(querySql, [...values, id])
