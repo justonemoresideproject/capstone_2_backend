@@ -33,6 +33,18 @@ router.get('/', ensureCorrectUserOrAdmin, async function(req, res, next) {
     }
 })
 
+router.get('/getOrderItems', ensureCorrectUserOrAdmin, async function(req, res, next) {
+    try {
+        const id = req.query.id
+
+        const orderItems = await Order.findItems(id)
+
+        return res.json({ orderItems })
+    } catch (err) {
+        return next(err)
+    }
+})
+
 /**
  * POST / => newOrder 
  * req.body = { addressId, customerId, products }
@@ -44,9 +56,9 @@ router.get('/', ensureCorrectUserOrAdmin, async function(req, res, next) {
 
 router.post("/", async function(req, res, next) {
     try {
-        const validatorOne = jsonschema.validate(req.body, orderNewSchema)
+        const validatorOne = jsonschema.validate(req.body.orderInfo, orderNewSchema)
 
-        const validatorTwo = jsonschema.validate(req.body, orderNewTwoSchema)
+        const validatorTwo = jsonschema.validate(req.body.orderInfo, orderNewTwoSchema)
 
         if(!validatorOne.valid && !validatorTwo.valid){
             if(!validatorOne.valid) {

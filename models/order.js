@@ -189,6 +189,29 @@ class Order {
         return returnSqlObject(res.rows)
     }
 
+    static async findItems(id=null) {
+        let query = `
+            SELECT 
+                id, 
+                order_id AS "orderId",
+                product_id AS "productId",
+                quantity,
+                created_at AS "createdAt"
+            FROM order_line_items`
+
+        if(id !== null) { 
+            query += ' WHERE order_id=$1'
+            
+            const res = await db.query(query, [id])
+
+            return returnSqlObject(res.rows)
+        }
+
+        const res = await db.query(query)
+
+        return returnSqlObject(res.rows)
+    }
+
     /** Accepts an orderId and the data to be updated. Pushes information to db and returns the updated order
      * 
      * Makes use of the sqlForPartialUpdate helper
