@@ -185,8 +185,11 @@ class Order {
         }
 
         const res = await db.query(query)
+        const lineItems = await this.findItems()
 
-        return returnSqlObject(res.rows)
+        const orders = this.addItemsToOrders(returnSqlObject(res.rows), lineItems)
+
+        return returnSqlObject(orders)
     }
 
     static async findItems(id=null) {
@@ -372,6 +375,21 @@ class Order {
         if(!item){
             throw new NotFoundError(`Unknown item id: ${id}`)
         }
+    }
+
+    static addItemsToOrders(orders, items) {
+        const itemKeys = Object.keys(items)
+
+        itemKeys.forEach(key => {
+            console.log(key)
+            console.log(orders[items[key].orderId])
+            const orderId = items[key].orderId
+            orders[orderId].orderItems = { ...orders[orderId].orderItems, [key] : items[key] }
+        })
+
+        console.log(orders)
+
+        return orders
     }
 }
 
